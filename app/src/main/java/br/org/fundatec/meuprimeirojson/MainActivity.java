@@ -19,6 +19,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -74,10 +75,32 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.send) {
+            sendMissil();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void sendMissil() {
+        StringRequest request = new StringRequest(
+                "http://www.poatransporte.com.br/php/facades/process.php?a=nc&p=&t=o",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Gson gson = new Gson();
+                        LinhaOnibus[] LinhasOnibus = gson.fromJson(response,LinhaOnibus[].class);
+                        Random random = new Random();
+                        Toast.makeText(MainActivity.this, "Linha de onibus: " + LinhasOnibus[random.nextInt(LinhasOnibus.length)].nome,
+                                Toast.LENGTH_LONG).show();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(MainActivity.this, error.getMessage(),Toast.LENGTH_LONG).show();
+            }
+        });
+        mVolleyQueue.add(request);
     }
 }
